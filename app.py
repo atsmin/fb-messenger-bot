@@ -57,7 +57,8 @@ def webhook():
 @app.route('/greet', methods=['POST'])
 def greet():
     message = "え〜みなみくんまたきたの〜やだなぁ"
-    user_id = '1240556552665406'  # To Atsuo
+    user_id = '1240556552665406'  # Atsuo Minami
+    # user_id = '1114623458637753'  # Eri Koriyama
     send_message(user_id, message)
     return "ok", 200
 
