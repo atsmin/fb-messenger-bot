@@ -40,7 +40,7 @@ def webhook():
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"].get("text")  # the message's text
 
-                    send_message(sender_id, u"わん")
+                    send_message(sender_id, "わん")
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
@@ -51,6 +51,14 @@ def webhook():
                 if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
                     pass
 
+    return "ok", 200
+
+
+@app.route('/greet', methods=['POST'])
+def greet():
+    message = "え〜みなみくんまたきたの〜やだなぁ"
+    user_id = '1240556552665406'  # To Atsuo
+    send_message(user_id, message)
     return "ok", 200
 
 
