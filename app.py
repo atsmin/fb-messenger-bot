@@ -67,7 +67,7 @@ def greet():
 @app.route('/countdown', methods=['GET'])
 def countdown():
     from datetime import date, datetime, timedelta
-    event = date(2018, 5, 28)  # FIXME
+    event = date(2017, 5, 28)  # FIXME
     today = (datetime.today() + timedelta(hours=9)).date()  # UTC to JST
     remain = (event - today).days
 
