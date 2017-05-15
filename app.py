@@ -8,6 +8,9 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
+USER1 = '1240556552665406'  # AM
+USER2 = '1114623458637753'  # EK
+
 
 @app.route('/', methods=['GET'])
 def verify():
@@ -57,9 +60,27 @@ def webhook():
 @app.route('/greet', methods=['POST'])
 def greet():
     message = "え〜みなみくんまたきたの〜やだなぁ"
-    user_id = '1240556552665406'  # Atsuo Minami
-    # user_id = '1114623458637753'  # Eri Koriyama
-    send_message(user_id, message)
+    send_message(USER1, message)
+    return "ok", 200
+
+
+@app.route('/countdown', methods=['GET'])
+def countdown():
+    from datetime import date, datetime, timedelta
+    event = date(2018, 5, 28)  # FIXME
+    today = (datetime.today() + timedelta(hours=9)).date()  # UTC to JST
+    remain = event - today
+
+    message = ''
+    if remain > 0:
+        message = "熱海まであと{}日！たのちみ！".format(remain)
+    elif remain == 0:
+        message = "熱海〜！！いいな〜！！"
+
+    if message:
+        send_message(USER1, message)
+        send_message(USER2, message)
+
     return "ok", 200
 
 
