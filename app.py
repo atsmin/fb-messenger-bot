@@ -2,14 +2,17 @@
 import os
 import sys
 import json
+import redis
 
 import requests
 from flask import Flask, request
 
+USERS = ('atsmin', 'erithin')
+APIXU_URL = 'http://api.apixu.com/v1/forecast.json'
+
 app = Flask(__name__)
 
-USER1 = '1240556552665406'  # AM
-USER2 = '1114623458637753'  # EK
+r = redis.from_url(os.environ.get("REDIS_URL"))
 
 
 @app.route('/', methods=['GET'])
@@ -60,7 +63,8 @@ def webhook():
 @app.route('/greet', methods=['POST'])
 def greet():
     message = "え〜みなみくんまたきたの〜やだなぁ"
-    send_message(USER1, message)
+    sender_id = r.hget(USERS[0], 'sender_id')
+    send_message(sender_id, message)
     return "ok", 200
 
 
@@ -73,15 +77,44 @@ def countdown():
 
     message = ''
     if remain > 0:
-        message = "熱海まであと{}日！たのちみ！".format(remain)
+        message = "熱海まであと{}日だよ。たのちみ！".format(remain)
     elif remain == 0:
         message = "熱海〜！！いいな〜！！"
 
     if message:
-        send_message(USER1, message)
-        send_message(USER2, message)
+        for user in USERS:
+            sender_id = r.hget(user, 'sender_id')
+            send_message(sender_id, message)
 
     return "ok", 200
+
+
+@app.route('/forecast', methods=['GET'])
+def forecast():
+    message = '今日の天気だよ！'
+    for user in USERS:
+        sender_id = r.hget(user, 'sender_id')
+        city = r.hget(user, 'city')
+        forecast = get_forecast(city)
+        text = forecast['text']
+        if 'rain' in text or 'Rain' in text:
+            message += '\n傘忘れないでね！'
+
+        send_message(sender_id, message)
+        send_attachment(sender_id, forecast['icon'])
+
+    return "ok", 200
+
+
+def get_forecast(city):
+    response = requests.get(APIXU_URL, {
+        'key': os.environ['APIXU_KEY'],
+        'q': city,
+        'days': 1
+    })
+    data = response.get_json()
+    condition = data['forecast']['forecastday']['day']['condition']
+    return condition
 
 
 def send_message(recipient_id, message_text):
@@ -100,6 +133,30 @@ def send_message(recipient_id, message_text):
         },
         "message": {
             "text": message_text
+        }
+    })
+    r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
+    if r.status_code != 200:
+        log(r.status_code)
+        log(r.text)
+
+
+def send_attachment(recipient_id, attachment):
+
+    log("sending message to {recipient}: {attachment}".format(recipient=recipient_id, attachment=attachment))
+
+    params = {
+        "access_token": os.environ["PAGE_ACCESS_TOKEN"]
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = json.dumps({
+        "recipient": {
+            "id": recipient_id
+        },
+        "message": {
+            "attachment": attachment
         }
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
