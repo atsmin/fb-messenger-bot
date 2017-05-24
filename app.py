@@ -159,7 +159,7 @@ def send_attachment(recipient_id, attachment):
             "attachment": {
                 "type": "image",
                 "payload": {
-                    "url": attachment
+                    "url": 'http:' + attachment
                 }
             }
         }
