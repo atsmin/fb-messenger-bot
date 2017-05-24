@@ -156,7 +156,12 @@ def send_attachment(recipient_id, attachment):
             "id": recipient_id
         },
         "message": {
-            "attachment": attachment
+            "attachment": {
+                "type": "image",
+                "payload": {
+                    "url": attachment
+                }
+            }
         }
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
