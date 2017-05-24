@@ -113,7 +113,7 @@ def get_forecast(city):
         'days': 1
     })
     data = json.loads(response.text)
-    condition = data['forecast']['forecastday']['day']['condition']
+    condition = data['forecast']['forecastday'][0]['day']['condition']
     return condition
 
 
