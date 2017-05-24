@@ -112,7 +112,7 @@ def get_forecast(city):
         'q': city,
         'days': 1
     })
-    data = response.get_json()
+    data = json.loads(response.text)
     condition = data['forecast']['forecastday']['day']['condition']
     return condition
 
