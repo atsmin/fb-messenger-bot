@@ -70,16 +70,17 @@ def greet():
 
 @app.route('/countdown', methods=['GET'])
 def countdown():
-    from datetime import date, datetime, timedelta
-    event = date(2017, 5, 28)  # FIXME
+    from datetime import datetime, timedelta
+    event = request.args.get("event")
+    date = datetime.strptime(request.args.get("date"), '%Y-%m-%d').date()
     today = (datetime.today() + timedelta(hours=9)).date()  # UTC to JST
-    remain = (event - today).days
+    remain = (date - today).days
 
     message = ''
     if remain > 0:
-        message = "熱海まであと{}日だよ。たのちみ！".format(remain)
+        message = u"{}まであと{}日だよ。たのちみ！".format(event, remain).encode('utf-8')
     elif remain == 0:
-        message = "熱海〜！！いいな〜！！"
+        message = u"今日は{}の日だよ！やったね！！".format(event).encode('utf-8')
 
     if message:
         for user in USERS:
