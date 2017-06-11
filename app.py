@@ -93,7 +93,7 @@ def countdown():
 @app.route('/forecast', methods=['GET'])
 def forecast():
     for user in USERS:
-        message = '今日の{}の天気だよ！'.format(r.hget(user, 'city_jp'))
+        message = '今日の{}の天気だよ。'.format(r.hget(user, 'city_jp'))
         sender_id = r.hget(user, 'sender_id')
         city = r.hget(user, 'city_en')
         forecast = get_forecast(city)
